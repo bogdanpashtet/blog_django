@@ -1,11 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Главная</title>
-</head>
-<body>
-    <p>{{ article_name }}</p>
+{% extends "blog/base_generic.html" %}
 
-</body>
-</html>
+{% block title %}<title>{{ title }}</title>{% endblock %}
+
+
+{% block content %}
+{% for item in articles %}
+    <div><p>{{ item.title }}</p></div>
+    <div><p>{{ item.owner }}</p></div>
+    <div><p>{{ item.date_of_publishing }}</p></div>
+    <div><p>{{ item.article_text }}</p></div>
+    <hr>
+{% endfor %}
+{% endblock %}

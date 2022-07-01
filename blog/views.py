@@ -4,8 +4,13 @@ from .models import Articles
 
 
 def index(request):
-    return render(request, 'blog/index.html')
+    article = Articles.objects.all()
+    return render(request, 'blog/index.html', {'articles': article, 'title': "Главная"})
 
 
 def profile(request):
-    return HttpResponse('<h1>This is a profile page</h1>')
+    return render(request, 'blog/profile.html')
+
+
+def article(request):
+    return render(request, 'blog/article.html')
