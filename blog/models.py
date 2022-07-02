@@ -14,15 +14,23 @@ class Users(models.Model):
     def __str__(self):
         return self.nickname
 
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+
 
 class Articles(models.Model):
-    title = models.CharField(max_length=200, default="Enter the name please")
-    owner = models.CharField(max_length=50)
-    article_text = models.TextField(blank=True)
-    date_of_publishing = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=200, default="Enter the name please", verbose_name="Заголовок")
+    owner = models.CharField(max_length=50, verbose_name="Владелец")
+    article_text = models.TextField(blank=True, verbose_name="Текст статьи")
+    date_of_publishing = models.DateTimeField(auto_now_add=True, verbose_name="Дата публикации")
     photo_preview = models.ImageField(upload_to='photos_article/%Y/%M/%D', blank=True)
     slug_name = models.SlugField(unique=True, max_length=200, default=0)
-    is_published = models.BooleanField(default=True)
+    is_published = models.BooleanField(default=True, verbose_name="Опубликовано?")
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name = "Статья"
+        verbose_name_plural = "Статьи"

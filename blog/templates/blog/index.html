@@ -5,10 +5,15 @@
 
 {% block content %}
 {% for item in articles %}
-    <div><p>{{ item.title }}</p></div>
-    <div><p>{{ item.owner }}</p></div>
-    <div><p>{{ item.date_of_publishing }}</p></div>
-    <div><p>{{ item.article_text }}</p></div>
-    <hr>
+
+    <div class="card mb-3 mx-5">
+{#        <img src="..." class="card-img-top" alt="...">#}
+        <div class="card-body">
+            <h5 class="card-title">{{ item.title }}</h5>
+            <p class="card-text">{{ item.article_text }}</p>
+            <p class="card-text"><small class="text-muted">Автор: {{ item.owner }}</small></p>
+            <p class="card-text"><small class="text-muted">Опубликовано: {{ item.date_of_publishing }}</small></p>
+        </div>
+    </div>
 {% endfor %}
 {% endblock %}
