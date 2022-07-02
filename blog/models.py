@@ -5,11 +5,14 @@ class Users(models.Model):
     name = models.CharField(max_length=30)
     surname = models.CharField(max_length=30)
     nickname = models.CharField(max_length=50)
-    photo = models.ImageField(upload_to='photos/%Y/%M/%D')
+    photo = models.ImageField(upload_to='photos/%Y/%M/%D', blank=True)
     email = models.EmailField(unique=True, default="aaa@aa.com")
     date_of_creation = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     role = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.nickname
 
 
 class Articles(models.Model):
@@ -17,5 +20,9 @@ class Articles(models.Model):
     owner = models.CharField(max_length=50)
     article_text = models.TextField(blank=True)
     date_of_publishing = models.DateTimeField(auto_now_add=True)
-    # photo_preview = models.ImageField(upload_to='photos_article/%Y/%M/%D')
+    photo_preview = models.ImageField(upload_to='photos_article/%Y/%M/%D', blank=True)
     slug_name = models.SlugField(unique=True, max_length=200, default=0)
+    is_published = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
