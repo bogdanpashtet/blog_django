@@ -1,32 +1,44 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
-class Users(models.Model):
-    name = models.CharField(max_length=30)
-    surname = models.CharField(max_length=30)
-    nickname = models.CharField(max_length=50)
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.ImageField(upload_to='photos/%Y/%M/%D', blank=True)
-    email = models.EmailField(unique=True, default="aaa@aa.com")
-    date_of_creation = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
-    role = models.IntegerField(default=0)
+    bio = models.TextField(max_length=500, blank=True)
+    location = models.CharField(max_length=30, blank=True)
+    birth_date = models.DateField(null=True, blank=True)
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.nickname
-
-    class Meta:
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
+        return self.name
 
 
 class Articles(models.Model):
     title = models.CharField(max_length=200, default="Enter the name please", verbose_name="Заголовок")
-    owner = models.CharField(max_length=50, verbose_name="Владелец")
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Владелец")
     article_text = models.TextField(blank=True, verbose_name="Текст статьи")
     date_of_publishing = models.DateTimeField(auto_now_add=True, verbose_name="Дата публикации")
     photo_preview = models.ImageField(upload_to='photos_article/%Y/%M/%D', blank=True)
     slug_name = models.SlugField(unique=True, max_length=200, default=0)
     is_published = models.BooleanField(default=True, verbose_name="Опубликовано?")
+    genre = models.ManyToManyField(Tag, help_text="Выберете тематику статьи")
 
     def __str__(self):
         return self.title
@@ -34,3 +46,4 @@ class Articles(models.Model):
     class Meta:
         verbose_name = "Статья"
         verbose_name_plural = "Статьи"
+

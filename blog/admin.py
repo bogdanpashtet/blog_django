@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import Users, Articles
+from .models import Profile, Articles
 
 
-@admin.register(Users)
-class UsersAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nickname', 'is_active', 'role')
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user')
 
 
 @admin.register(Articles)
