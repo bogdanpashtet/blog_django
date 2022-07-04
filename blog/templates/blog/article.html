@@ -1,10 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ title }}</title>
-</head>
-<body>
+{% extends "blog/base_generic.html" %}
 
-</body>
-</html>
+{% block title %}<title>{{ article.title }}</title>{% endblock %}
+
+
+{% block content %}
+    <div class="container d-flex justify-content-center align-baseline">
+    <div class="card d-flex mb-3 mx-5 w-100 p-3">
+{#        <img src="..." class="card-img-top" alt="...">#}
+        <div class="card-body">
+            <h5 class="card-title">{{ article.title }}</h5>
+            <p class="card-text">
+                {% for tag in article.genre.all %}
+                       <span class="badge text-bg-primary"><a href="{{ tag.get_absolute_url }}" class="nav-link active" aria-current="page">{{ tag }}</a></span>
+                {% endfor %}
+            </p>
+            <p class="card-text">{{ article.article_text }}</p>
+            <p class="card-text mb-1"><small class="text-muted">Автор: {{ article.owner }}</small></p>
+            <p class="card-text mt-1"><small class="text-muted">Опубликовано: {{ article.date_of_publishing| timesince }} назад</small></p>
+        </div>
+    </div>
+    </div>
+{% endblock %}

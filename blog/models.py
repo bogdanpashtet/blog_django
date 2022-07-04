@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 
 
 class Profile(models.Model):
@@ -25,6 +26,9 @@ def save_user_profile(sender, instance, **kwargs):
 
 class Tag(models.Model):
     name = models.CharField(max_length=200)
+
+    def get_absolute_url(self):
+        return reverse('tag', kwargs={"tag_id": self.pk})
 
     def __str__(self):
         return self.name
@@ -50,3 +54,6 @@ class Articles(models.Model):
 
     def get_genre(self):
         return " ".join([str(p) for p in self.genre.all()])
+
+    def get_absolute_url(self):
+        return reverse('article', kwargs={'slug_name': self.slug_name})

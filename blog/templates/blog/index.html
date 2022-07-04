@@ -13,13 +13,13 @@
             <h5 class="card-title">{{ item.title }}</h5>
             <p class="card-text">
                 {% for tag in item.genre.all %}
-{#                    <span class="badge text-bg-primary"><a href="tag/{{ tag.pk }}" class="nav-link active" aria-current="page">{{ tag }}</a></span>#}
-                       <span class="badge text-bg-primary"><a href="{% url 'tag' tag.pk %}" class="nav-link active" aria-current="page">{{ tag }}</a></span>
+                       <span class="badge text-bg-primary"><a href="{{ tag.get_absolute_url }}" class="nav-link active" aria-current="page">{{ tag }}</a></span>
                 {% endfor %}
             </p>
             <p class="card-text">{{ item.article_text }}</p>
             <p class="card-text mb-1"><small class="text-muted">Автор: {{ item.owner }}</small></p>
             <p class="card-text mt-1"><small class="text-muted">Опубликовано: {{ item.date_of_publishing| timesince }} назад</small></p>
+            <button type="button" class="btn btn-outline-primary"><a href="{{ item.get_absolute_url }}" class="nav-link active" aria-current="page">Читать статью</a></button>
         </div>
     </div>
     </div>

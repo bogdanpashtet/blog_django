@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Articles, Tag
 from django.contrib.auth.forms import UserCreationForm
 
@@ -33,3 +33,8 @@ def get_tag(request, tag_id):
     articles = Articles.objects.filter(genre=tag_id)
     tag = Tag.objects.get(pk=tag_id)
     return render(request, 'blog/tag.html', {'title': tag, 'articles': articles, 'tag': tag})
+
+
+def get_article(request, slug_name):
+    articles = get_object_or_404(Articles, slug_name=slug_name)
+    return render(request, 'blog/article.html', {'article': articles})
