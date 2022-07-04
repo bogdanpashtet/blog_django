@@ -12,7 +12,7 @@ urlpatterns = [
     path('about/', about, name='about'),
     path('register/', register, name='register'),
     path('login/', login, name='login'),
-    path('tag/<int:tag_id>', get_tag)
+    path('tag/<int:tag_id>/', get_tag, name='tag')
 ]
 
 

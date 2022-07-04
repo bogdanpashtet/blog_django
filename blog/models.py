@@ -32,13 +32,14 @@ class Tag(models.Model):
 
 class Articles(models.Model):
     title = models.CharField(max_length=200, default="Enter the name please", verbose_name="Заголовок")
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Владелец")
+    # owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Владелец")
+    owner = models.CharField(max_length=200, default="Enter the owner of this article", verbose_name="Владелец")
     article_text = models.TextField(blank=True, verbose_name="Текст статьи")
     date_of_publishing = models.DateTimeField(auto_now_add=True, verbose_name="Дата публикации")
     photo_preview = models.ImageField(upload_to='photos_article/%Y/%M/%D', blank=True)
     slug_name = models.SlugField(unique=True, max_length=200, default=0)
     is_published = models.BooleanField(default=True, verbose_name="Опубликовано?")
-    genre = models.ManyToManyField(Tag, help_text="Выберете тематику статьи")
+    genre = models.ManyToManyField(Tag, help_text="Выберете тематику статьи", verbose_name="Теги")
 
     def __str__(self):
         return self.title
@@ -47,3 +48,5 @@ class Articles(models.Model):
         verbose_name = "Статья"
         verbose_name_plural = "Статьи"
 
+    def get_genre(self):
+        return " ".join([str(p) for p in self.genre.all()])

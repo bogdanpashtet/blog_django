@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Articles
+from .models import Articles, Tag
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -30,4 +30,6 @@ def login(request):
 
 
 def get_tag(request, tag_id):
-    articles = Articles.objects.filter(tag_id=tag_id)
+    articles = Articles.objects.filter(genre=tag_id)
+    tag = Tag.objects.get(pk=tag_id)
+    return render(request, 'blog/tag.html', {'title': tag, 'articles': articles, 'tag': tag})

@@ -4,6 +4,9 @@
 
 
 {% block content %}
+
+    <h1 class="text-center">{{ tag }}</h1>
+
 {% for item in articles %}
 
     <div class="container d-flex justify-content-center align-baseline">
@@ -13,8 +16,7 @@
             <h5 class="card-title">{{ item.title }}</h5>
             <p class="card-text">
                 {% for tag in item.genre.all %}
-{#                    <span class="badge text-bg-primary"><a href="tag/{{ tag.pk }}" class="nav-link active" aria-current="page">{{ tag }}</a></span>#}
-                       <span class="badge text-bg-primary"><a href="{% url 'tag' tag.pk %}" class="nav-link active" aria-current="page">{{ tag }}</a></span>
+                    <span class="badge text-bg-primary"><a href="{% url 'tag' tag.pk %}" class="nav-link active" aria-current="page">{{ tag }}</a></span>
                 {% endfor %}
             </p>
             <p class="card-text">{{ item.article_text }}</p>
