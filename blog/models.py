@@ -3,7 +3,16 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils.text import slugify
+from django.template.defaultfilters import slugify as django_slugify
+
+alphabet = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
+            'й': 'j', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+            'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ы': 'i', 'э': 'e', 'ю': 'yu',
+            'я': 'ya'}
+
+
+def slugify(s):
+    return django_slugify(''.join(alphabet.get(w, w) for w in s.lower()))
 
 
 class Profile(models.Model):
@@ -38,11 +47,11 @@ class Tag(models.Model):
 class Articles(models.Model):
     title = models.CharField(max_length=200, default="Enter the name please", verbose_name="Заголовок")
     # owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Владелец")
-    owner = models.CharField(max_length=200, default="Enter the owner of this article", verbose_name="Владелец")
+    owner = models.CharField(max_length=200, default="admin", verbose_name="Владелец")
     article_text = models.TextField(blank=True, verbose_name="Текст статьи")
     date_of_publishing = models.DateTimeField(auto_now_add=True, verbose_name="Дата публикации")
     photo_preview = models.ImageField(upload_to='photos_article/%Y/%M/%D', blank=True)
-    slug_name = models.SlugField(unique=True, max_length=200, default=0)
+    slug_name = models.SlugField(max_length=200, db_index=True)
     is_published = models.BooleanField(default=True, verbose_name="Опубликовано?")
     genre = models.ManyToManyField(Tag, help_text="Выберете тематику статьи", verbose_name="Теги")
 
@@ -60,5 +69,6 @@ class Articles(models.Model):
         return reverse('article', kwargs={'slug_name': self.slug_name})
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
+        if not self.id:
+            self.slug_name = slugify(self.title)
         super(Articles, self).save(*args, **kwargs)

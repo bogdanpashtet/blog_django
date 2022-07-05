@@ -11,6 +11,7 @@ class ProfileAdmin(admin.ModelAdmin):
 @admin.register(Articles)
 class ArticlesAdmin(admin.ModelAdmin):
     list_display = ('title', 'get_genre', 'owner', 'date_of_publishing', 'is_published')
+    prepopulated_fields = {"slug_name": ('title', )}
 
 
 @admin.register(Tag)
