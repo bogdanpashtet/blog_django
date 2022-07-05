@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Articles, Tag
 from django.contrib.auth.forms import UserCreationForm
+from .forms import ArticleForm
 
 
 def index(request):
@@ -38,3 +39,11 @@ def get_tag(request, tag_id):
 def get_article(request, slug_name):
     articles = get_object_or_404(Articles, slug_name=slug_name)
     return render(request, 'blog/article.html', {'article': articles})
+
+
+def add_article(request):
+    if request.method=="POST":
+        pass
+    else:
+        form = ArticleForm()
+    return render(request, 'blog/add_article.html', {'title': "Добавить статью", 'form': form})

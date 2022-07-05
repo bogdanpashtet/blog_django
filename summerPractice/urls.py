@@ -2,13 +2,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from blog.views import index, profile, article, about, register, login, get_tag, get_article
+from blog.views import index, profile, article, about, register, login, get_tag, get_article, add_article
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name=''),
     path('profile/', profile, name='profile'),
     path('article/', article, name='article'),
+    path('add_article/', add_article, name='add_article'),
     path('about/', about, name='about'),
     path('register/', register, name='register'),
     path('login/', login, name='login'),

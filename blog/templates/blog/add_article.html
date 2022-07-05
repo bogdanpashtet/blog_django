@@ -1,0 +1,20 @@
+{% extends "blog/base_generic.html" %}
+
+{% block title %}<title>{{ title }}</title>{% endblock %}
+
+
+{% block content %}
+    <h1 class="text-center">Добавить статью</h1>
+    <div class="container">
+    <form action="{% url 'add_article' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-row text-center">
+            <div class="col-12">
+                <button type="submit" class="btn btn-outline-primary">Добавить статью</button>
+            </div>
+        </div>
+    </form>
+    </div>
+
+{% endblock %}
