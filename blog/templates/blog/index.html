@@ -12,7 +12,7 @@
         <div class="card-body">
             <h5 class="card-title">{{ item.title }}</h5>
             <p class="card-text">
-                {% for tag in item.genre.all %}
+                {% for tag in item.tags.all %}
                        <span class="badge text-bg-primary"><a href="{{ tag.get_absolute_url }}" class="nav-link active" aria-current="page">{{ tag }}</a></span>
                 {% endfor %}
             </p>

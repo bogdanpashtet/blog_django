@@ -5,7 +5,7 @@ from .forms import ArticleForm
 
 
 def index(request):
-    article_1 = Articles.objects.filter(is_published=True)
+    article_1 = Articles.objects.filter(is_published=True).prefetch_related('tags')
     return render(request, 'blog/index.html', {'articles': article_1, 'title': "Главная"})
 
 
@@ -31,7 +31,7 @@ def login(request):
 
 
 def get_tag(request, tag_id):
-    articles = Articles.objects.filter(genre=tag_id)
+    articles = Articles.objects.filter(tags=tag_id, is_published=True).prefetch_related('tags')
     tag = Tag.objects.get(pk=tag_id)
     return render(request, 'blog/tag.html', {'title': tag, 'articles': articles, 'tag': tag})
 
@@ -45,13 +45,12 @@ def add_article(request):
     if request.method == "POST":
         form = ArticleForm(request.POST)
         if form.is_valid():
-            # article1 = form.save()
             title = form.cleaned_data["title"]
             article_text = form.cleaned_data["article_text"]
             is_published = form.cleaned_data["is_published"]
-            genre = form.cleaned_data["genre"]
+            tags = form.cleaned_data["tags"]
             article1 = Articles.objects.create(title=title, article_text=article_text, is_published=is_published)
-            article1.genre.set(genre)
+            article1.tags.set(tags)
             article1.save()
             return redirect(article1)
     else:

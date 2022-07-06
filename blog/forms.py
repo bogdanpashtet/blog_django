@@ -1,5 +1,5 @@
 from django import forms
-from .models import Tag
+from .models import Tag, Articles
 
 # class UserForm(forms.ModelForm):
 #     class Meta:
@@ -18,4 +18,4 @@ class ArticleForm(forms.Form):
     article_text = forms.CharField(label="Текст статьи:", required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 5}))
     # photo_preview = forms.ImageField(upload_to='photos_article/%Y/%M/%D', blank=True)
     is_published = forms.BooleanField(label="Опубликовано?:", initial=True)
-    genre = forms.ModelMultipleChoiceField(required=True, queryset=Tag.objects.all(), label="Теги:", widget=forms.SelectMultiple(attrs={"class": "form-control"}))
+    tags = forms.ModelMultipleChoiceField(required=True, queryset=Tag.objects.all(), label="Теги:", widget=forms.CheckboxSelectMultiple())
