@@ -4,20 +4,47 @@
 
 
 {% block content %}
-    <div class="container d-flex justify-content-center align-baseline">
-    <div class="card d-flex mb-3 mx-5 w-100 p-3">
+
+    <style>
+        img{
+            width: 1200px; /* Ширина области */
+            height: 100%; /* Высота области */
+        }
+    </style>
+
+    <div class="conteiner mx-6">
+    <div class="row justify-content-md-center">
+    <div class="col-md-8">
+    <p class="card-text">
+        {% for tag in article.tags.all %}
+            <span class="badge text-bg-primary"><a href="{{ tag.get_absolute_url }}" class="nav-link active" aria-current="page">{{ tag }}</a></span>
+        {% endfor %}
+    </p>
+    <article class="blog-post">
+        <h2 class="blog-post-title mb-1">{{ article.title }}</h2>
+        <p class="blog-post-meta">{{ article.date_of_publishing }} by <a href="#">{{ article.owner }}</a></p>
+        {% autoescape off %}
+        {{ article.article_text }}
+        {% endautoescape %}
+    </article>
+    </div>
+    </div>
+    </div>
+
+{#    <div class="container d-flex justify-content-center align-baseline">#}
+{#    <div class="card d-flex mb-3 mx-5 w-100 p-3">#}
 {#        <img src="..." class="card-img-top" alt="...">#}
-        <div class="card-body">
-            <h5 class="card-title">{{ article.title }}</h5>
-            <p class="card-text">
-                {% for tag in article.tags.all %}
-                       <span class="badge text-bg-primary"><a href="{{ tag.get_absolute_url }}" class="nav-link active" aria-current="page">{{ tag }}</a></span>
-                {% endfor %}
-            </p>
-            <p class="card-text">{{ article.article_text }}</p>
-            <p class="card-text mb-1"><small class="text-muted">Автор: {{ article.owner }}</small></p>
-            <p class="card-text mt-1"><small class="text-muted">Опубликовано: {{ article.date_of_publishing| timesince }} назад</small></p>
-        </div>
-    </div>
-    </div>
+{#        <div class="card-body">#}
+{#            <h5 class="card-title">{{ article.title }}</h5>#}
+{#            <p class="card-text">#}
+{#                {% for tag in article.tags.all %}#}
+{#                       <span class="badge text-bg-primary"><a href="{{ tag.get_absolute_url }}" class="nav-link active" aria-current="page">{{ tag }}</a></span>#}
+{#                {% endfor %}#}
+{#            </p>#}
+{#            <p class="card-text">{{ article.article_text }}</p>#}
+{#            <p class="card-text mb-1"><small class="text-muted">Автор: {{ article.owner }}</small></p>#}
+{#            <p class="card-text mt-1"><small class="text-muted">Опубликовано: {{ article.date_of_publishing| timesince }} назад</small></p>#}
+{#        </div>#}
+{#    </div>#}
+{#    </div>#}
 {% endblock %}

@@ -18,10 +18,6 @@ def article(request):
     return render(request, 'blog/article.html')
 
 
-def about(request):
-    return render(request, 'blog/about.html', {'title': "О нас"})
-
-
 def register(request):
     if request.method == "POST":
         form = RegistrationForm(request.POST)
@@ -52,10 +48,6 @@ def authorization(request):
     return render(request, 'blog/authorization.html', {'title': "Авторизация", 'form': form})
 
 
-def user_login(request):
-    return render(request, 'blog/register.html', {'title': "Авторизоваться"})
-
-
 def user_logout(request):
     logout(request)
     return redirect('')
@@ -80,7 +72,8 @@ def add_article(request):
             article_text = form.cleaned_data["article_text"]
             is_published = form.cleaned_data["is_published"]
             tags = form.cleaned_data["tags"]
-            article1 = Articles.objects.create(title=title, article_text=article_text, is_published=is_published)
+            owner = str(request.user)
+            article1 = Articles.objects.create(title=title, article_text=article_text, is_published=is_published, owner=owner)
             article1.tags.set(tags)
             article1.save()
             return redirect(article1)

@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.urls import reverse
 from django.template.defaultfilters import slugify as django_slugify
 
@@ -69,6 +67,8 @@ class Articles(models.Model):
         return reverse('article', kwargs={'slug_name': self.slug_name})
 
     def save(self, *args, **kwargs):
+
         if not self.id:
             self.slug_name = slugify(self.title)
+
         super(Articles, self).save(*args, **kwargs)
