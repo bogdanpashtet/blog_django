@@ -1,7 +1,8 @@
+from django.contrib import messages
+from django.contrib.auth import login, logout
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Articles, Tag
-from django.contrib.auth.forms import UserCreationForm
-from .forms import ArticleForm
+from .forms import ArticleForm, RegistrationForm, AuthForm
 
 
 def index(request):
@@ -22,12 +23,42 @@ def about(request):
 
 
 def register(request):
-    form = UserCreationForm
+    if request.method == "POST":
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Вы успешно зарегистрированы!')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Ошибка регистрации!')
+    else:
+        form = RegistrationForm()
     return render(request, 'blog/register.html', {'title': "Регистрация", 'form': form})
 
 
-def login(request):
+def authorization(request):
+    if request.method == "POST":
+        form = AuthForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, 'Вы успешно авторизированны!')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Ошибка входа!')
+    else:
+        form = AuthForm()
+    return render(request, 'blog/authorization.html', {'title': "Авторизация", 'form': form})
+
+
+def user_login(request):
     return render(request, 'blog/register.html', {'title': "Авторизоваться"})
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('')
 
 
 def get_tag(request, tag_id):
