@@ -1,9 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Articles, Tag
-from .forms import ArticleForm, RegistrationForm, AuthForm
-from django.views.generic import UpdateView
+from django.urls import reverse_lazy
+from django.contrib.auth.models import User
+
+from .models import Articles, Tag, Profile
+from .forms import ArticleForm, RegistrationForm, AuthForm, UserForm, ProfileForm
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView
 
 
 def index(request):
@@ -23,7 +29,7 @@ def register(request):
             user = form.save()
             login(request, user)
             messages.success(request, 'Вы успешно зарегистрированы!')
-            return redirect('profile')
+            return redirect('profile', user_id=request.user.id)
         else:
             messages.error(request, 'Ошибка регистрации!')
     else:
@@ -38,7 +44,7 @@ def authorization(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, 'Вы успешно авторизированны!')
-            return redirect('profile')
+            return redirect('profile', user_id=request.user.id)
         else:
             messages.error(request, 'Ошибка входа!')
     else:
@@ -54,7 +60,7 @@ def user_logout(request):
 def get_tag(request, tag_id):
     articles = Articles.objects.filter(tags=tag_id, is_published=True).prefetch_related('tags')
     tag = Tag.objects.get(pk=tag_id)
-    return render(request, 'blog/tag.html', {'title': tag, 'articles': articles, 'tag': tag})
+    return render(request, 'blog/index.html', {'title': tag, 'articles': articles, 'tag': tag})
 
 
 def get_article(request, slug_name):
@@ -70,7 +76,7 @@ def add_article(request):
             article_text = form.cleaned_data["article_text"]
             is_published = form.cleaned_data["is_published"]
             tags = form.cleaned_data["tags"]
-            owner = str(request.user)
+            owner = str(request.user.id)
             article1 = Articles.objects.create(title=title, article_text=article_text, is_published=is_published, owner=owner)
             article1.tags.set(tags)
             article1.save()
@@ -109,5 +115,28 @@ def edit_article(request, slug_name):
 def delete_article(request, slug_name):
     article = Articles.objects.get(slug_name=slug_name)
     article.delete()
-    return redirect('')
+    return redirect('profile', user_id=request.user.id)
 
+
+@login_required
+@transaction.atomic
+def update_profile(request, user_id):
+    name1 = get_object_or_404(User, id=user_id)
+    profile1 = get_object_or_404(Profile, user=name1)
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=name1)
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile1)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Ваш профиль был успешно обновлен!')
+            return redirect('profile', user_id=request.user.id)
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки.')
+    else:
+        user_form = UserForm(instance=name1)
+        profile_form = ProfileForm(instance=profile1)
+    return render(request, 'blog/profile.html', {
+        'user_form': user_form,
+        'profile_form': profile_form
+    })

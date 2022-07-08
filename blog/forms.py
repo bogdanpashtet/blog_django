@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from ckeditor.widgets import CKEditorWidget
 
-from .models import Tag
+from .models import Tag, Profile
 
 
 class ArticleForm(forms.Form):
@@ -27,4 +27,17 @@ class RegistrationForm(UserCreationForm):
 class AuthForm(AuthenticationForm):
     username = forms.CharField(required=True, max_length=200, label="Имя пользователя:", widget=forms.TextInput(attrs={"class": "form-control", "autocomplete": None}))
     password = forms.CharField(required=True, max_length=200, label="Пароль:", widget=forms.PasswordInput(attrs={"class": "form-control"}))
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('bio', 'location', 'birth_date', 'photo')
+
 

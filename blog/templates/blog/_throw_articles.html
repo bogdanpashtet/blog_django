@@ -1,0 +1,25 @@
+  <h1 class="text-center">{{ tag }}</h1>
+
+{% for item in articles %}
+    <div class="container d-flex justify-content-center align-baseline">
+        <div class="card d-flex mb-3 mx-5 w-100 p-3">
+            {#        <img src="..." class="card-img-top" alt="...">#}
+            <div class="card-body">
+                <h5 class="card-title">{{ item.title }}</h5>
+                <p class="card-text">
+                    {% for tag in item.tags.all %}
+                        <span class="badge text-bg-primary"><a href="{{ tag.get_absolute_url }}" class="nav-link active"
+                                                               aria-current="page">{{ tag }}</a></span>
+                    {% endfor %}
+                </p>
+                <p class="card-text mb-1"><small class="text-muted">Автор: <a
+                        href="{% url 'profile' user_id=item.owner_id %}">{{ item.owner }}</a></small></p>
+                <p class="card-text mt-1"><small
+                        class="text-muted">Опубликовано: {{ item.date_of_publishing| timesince }} назад</small></p>
+                <button type="button" class="btn btn-outline-primary"><a href="{{ item.get_absolute_url }}"
+                                                                         class="nav-link active" aria-current="page">Читать
+                    статью</a></button>
+            </div>
+        </div>
+    </div>
+{% endfor %}

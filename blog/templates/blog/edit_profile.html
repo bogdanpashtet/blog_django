@@ -1,0 +1,19 @@
+{% extends "blog/base_generic.html" %}
+
+{% block title %}<title>{{ title }}</title>{% endblock %}
+
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+    <div class="card-body">
+        <form method="POST" action="" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form.as_p}}
+        <button class="w-100 btn btn-lg btn-outline-primary" type="submit">Зарегистрироваться</button>
+        </form>
+    &lt;/div&gt</div>
+{% else %}
+    &lt;a href="{% url 'login' %}"&gt;Login&lt;/a&gt;
+{% endif %}
+
+{% endblock content %}
