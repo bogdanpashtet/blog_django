@@ -69,6 +69,9 @@ class Articles(models.Model):
     def edit_absolute_url(self):
         return reverse('edit_article', kwargs={'slug_name': self.slug_name})
 
+    def delete_absolute_url(self):
+        return reverse('delete_article', kwargs={'slug_name': self.slug_name})
+
     def save(self, *args, **kwargs):
 
         if not self.id:

@@ -105,3 +105,9 @@ def edit_article(request, slug_name):
         form = ArticleForm(initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
         return render(request, "blog/edit_article.html", {'article': articles, 'form': form})
 
+
+def delete_article(request, slug_name):
+    article = Articles.objects.get(slug_name=slug_name)
+    article.delete()
+    return redirect('')
+
