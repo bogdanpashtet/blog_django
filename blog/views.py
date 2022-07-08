@@ -80,12 +80,6 @@ def add_article(request):
     return render(request, 'blog/add_article.html', {'title': "Добавить статью", 'form': form})
 
 
-# class UpdateArticle(UpdateView):
-#     model = Articles
-#     template_name = 'blog/edit_article.html'
-#     fields = ['title', 'article_text', 'is_published', 'tags']
-
-
 def edit_article(request, slug_name):
     articles = get_object_or_404(Articles, slug_name=slug_name)
     title = articles.title
@@ -101,7 +95,7 @@ def edit_article(request, slug_name):
         else:
             articles.is_published = False
 
-        articles.tags.through.objects.all().delete()
+        articles.tags.clear()
         for c in request.POST.get('tags'):
             print(c)
             articles.tags.add(c)
