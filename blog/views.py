@@ -123,6 +123,7 @@ def delete_article(request, slug_name):
 def update_profile(request, user_id):
     name1 = get_object_or_404(User, id=user_id)
     profile1 = get_object_or_404(Profile, user=name1)
+    article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=name1)
         profile_form = ProfileForm(request.POST, request.FILES, instance=profile1)
@@ -138,5 +139,7 @@ def update_profile(request, user_id):
         profile_form = ProfileForm(instance=profile1)
     return render(request, 'blog/profile.html', {
         'user_form': user_form,
-        'profile_form': profile_form
+        'profile_form': profile_form,
+        'articles': article_1,
+        'title': "Профиль"
     })
