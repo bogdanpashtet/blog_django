@@ -3,19 +3,17 @@ from django.contrib.auth import login, logout
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Articles, Tag
 from .forms import ArticleForm, RegistrationForm, AuthForm
+from django.views.generic import UpdateView
 
 
 def index(request):
-    article_1 = Articles.objects.filter(is_published=True).prefetch_related('tags')
+    article_1 = Articles.objects.filter(is_published=True).prefetch_related('tags').order_by("-date_of_publishing")
     return render(request, 'blog/index.html', {'articles': article_1, 'title': "Главная"})
 
 
 def profile(request):
-    return render(request, 'blog/profile.html', {'title': "Профиль"})
-
-
-def article(request):
-    return render(request, 'blog/article.html')
+    article_1 = Articles.objects.filter(owner=request.user).order_by("-date_of_publishing")
+    return render(request, 'blog/profile.html', {'articles': article_1, 'title': "Профиль"})
 
 
 def register(request):
@@ -80,3 +78,36 @@ def add_article(request):
     else:
         form = ArticleForm()
     return render(request, 'blog/add_article.html', {'title': "Добавить статью", 'form': form})
+
+
+# class UpdateArticle(UpdateView):
+#     model = Articles
+#     template_name = 'blog/edit_article.html'
+#     fields = ['title', 'article_text', 'is_published', 'tags']
+
+
+def edit_article(request, slug_name):
+    articles = get_object_or_404(Articles, slug_name=slug_name)
+    title = articles.title
+    article_text = articles.article_text
+    is_published = articles.is_published
+    tags = articles.tags.all()
+    if request.method == "POST":
+        articles.title = request.POST.get('title')
+        articles.article_text = request.POST.get('article_text')
+        articles.is_published = request.POST.get('is_published')
+        if articles.is_published == "on":
+            articles.is_published = True
+        else:
+            articles.is_published = False
+
+        articles.tags.through.objects.all().delete()
+        for c in request.POST.get('tags'):
+            print(c)
+            articles.tags.add(c)
+        articles.save()
+        return redirect(articles)
+    else:
+        form = ArticleForm(initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
+        return render(request, "blog/edit_article.html", {'article': articles, 'form': form})
+

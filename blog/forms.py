@@ -10,7 +10,7 @@ class ArticleForm(forms.Form):
     title = forms.CharField(required=True, max_length=200, label="Название:", widget=forms.TextInput(attrs={"class": "form-control"}))
     article_text = forms.CharField(label="Текст статьи:", required=False, widget=CKEditorWidget)
     # photo_preview = forms.ImageField(upload_to='photos_article/%Y/%M/%D', blank=True)
-    is_published = forms.BooleanField(label="Опубликовано?:", initial=True)
+    is_published = forms.BooleanField(label="Опубликовано?:", initial=True, required=False)
     tags = forms.ModelMultipleChoiceField(required=True, queryset=Tag.objects.all(), label="Теги:", widget=forms.CheckboxSelectMultiple())
 
 
