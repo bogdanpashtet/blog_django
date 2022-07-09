@@ -26,33 +26,39 @@ def profile(request, user_id):
 
 
 def register(request):
-    if request.method == "POST":
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Вы успешно зарегистрированы!')
-            return redirect('profile', user_id=request.user.id)
+    if request.user.id is None:
+        if request.method == "POST":
+            form = RegistrationForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                login(request, user)
+                messages.success(request, 'Вы успешно зарегистрированы!')
+                return redirect('profile', user_id=request.user.id)
+            else:
+                messages.error(request, 'Ошибка регистрации!')
         else:
-            messages.error(request, 'Ошибка регистрации!')
+            form = RegistrationForm()
+        return render(request, 'blog/register.html', {'title': "Регистрация", 'form': form})
     else:
-        form = RegistrationForm()
-    return render(request, 'blog/register.html', {'title': "Регистрация", 'form': form})
+        return redirect('profile', user_id=request.user.id)
 
 
 def authorization(request):
-    if request.method == "POST":
-        form = AuthForm(data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            messages.success(request, 'Вы успешно авторизированны!')
-            return redirect('profile', user_id=request.user.id)
+    if request.user.id is None:
+        if request.method == "POST":
+            form = AuthForm(data=request.POST)
+            if form.is_valid():
+                user = form.get_user()
+                login(request, user)
+                messages.success(request, 'Вы успешно авторизированны!')
+                return redirect('profile', user_id=request.user.id)
+            else:
+                messages.error(request, 'Ошибка входа!')
         else:
-            messages.error(request, 'Ошибка входа!')
+            form = AuthForm()
+        return render(request, 'blog/authorization.html', {'title': "Авторизация", 'form': form})
     else:
-        form = AuthForm()
-    return render(request, 'blog/authorization.html', {'title': "Авторизация", 'form': form})
+        return redirect('profile', user_id=request.user.id)
 
 
 def user_logout(request):
@@ -91,58 +97,70 @@ def add_article(request):
 
 def edit_article(request, slug_name):
     articles = get_object_or_404(Articles, slug_name=slug_name)
-    title = articles.title
-    article_text = articles.article_text
-    is_published = articles.is_published
-    tags = articles.tags.all()
-    if request.method == "POST":
-        articles.title = request.POST.get('title')
-        articles.article_text = request.POST.get('article_text')
-        articles.is_published = request.POST.get('is_published')
-        if articles.is_published == "on":
-            articles.is_published = True
-        else:
-            articles.is_published = False
+    if request.user == articles.owner_id:
+        title = articles.title
+        article_text = articles.article_text
+        is_published = articles.is_published
+        tags = articles.tags.all()
+        if request.method == "POST":
+            articles.title = request.POST.get('title')
+            articles.article_text = request.POST.get('article_text')
+            articles.is_published = request.POST.get('is_published')
+            if articles.is_published == "on":
+                articles.is_published = True
+            else:
+                articles.is_published = False
 
-        articles.tags.clear()
-        for c in request.POST.getlist('tags'):
-            print(c)
-            articles.tags.add(c)
-        articles.save()
-        return redirect(articles)
+            articles.tags.clear()
+            for c in request.POST.getlist('tags'):
+                print(c)
+                articles.tags.add(c)
+            articles.save()
+            return redirect(articles)
+        else:
+            form = ArticleForm(initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
+            return render(request, "blog/edit_article.html", {'title': "Изменить статью", 'article': articles, 'form': form})
     else:
-        form = ArticleForm(initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
-        return render(request, "blog/edit_article.html", {'title': "Изменить статью", 'article': articles, 'form': form})
+        messages.error(request, 'У Вас нет прав на редактирование данной статьи!')
+        return redirect(articles)
 
 
 def delete_article(request, slug_name):
     article = Articles.objects.get(slug_name=slug_name)
-    article.delete()
-    return redirect('profile', user_id=request.user.id)
+    if request.user == article.owner_id:
+        article.delete()
+        return redirect('profile', user_id=request.user.id)
+    else:
+        messages.error(request, 'У Вас нет прав для удаления данной статьи!')
+        return redirect(article)
 
 
 @login_required
 @transaction.atomic
 def update_profile(request, user_id):
     name1 = get_object_or_404(User, id=user_id)
-    profile1 = get_object_or_404(Profile, user_id=user_id)
-    article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
-    if request.method == 'POST':
-        user_form = UserForm(request.POST, instance=name1)
-        profile_form = ProfileForm(request.POST, request.FILES, instance=profile1)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(request, 'Ваш профиль был успешно обновлен!')
-            return redirect('profile', user_id=request.user.id)
+    if request.user == name1:
+        profile1 = get_object_or_404(Profile, user_id=user_id)
+        article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
+        if request.method == 'POST':
+            user_form = UserForm(request.POST, instance=name1)
+            profile_form = ProfileForm(request.POST, request.FILES, instance=profile1)
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                profile_form.save()
+                messages.success(request, 'Ваш профиль был успешно обновлен!')
+                return redirect('profile', user_id=request.user.id)
+            else:
+                messages.error(request, 'Пожалуйста, исправьте ошибки.')
         else:
-            messages.error(request, 'Пожалуйста, исправьте ошибки.')
+            user_form = UserForm(instance=name1)
+            profile_form = ProfileForm(instance=profile1)
+        return render(request, 'blog/update_profile.html', {
+            'user_form': user_form,
+            'profile_form': profile_form,
+            'articles': article_1,
+            'title': "Профиль"
+        })
     else:
-        user_form = UserForm(instance=name1)
-        profile_form = ProfileForm(instance=profile1)
-    return render(request, 'blog/update_profile.html', {
-        'user_form': user_form,
-        'profile_form': profile_form,
-        'articles': article_1,
-        'title': "Профиль"
-    })
+        messages.error(request, 'У Вас нет прав для редактирования данного профиля!')
+        return redirect('profile', user_id=name1.id)
