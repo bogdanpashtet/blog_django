@@ -3,13 +3,9 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse_lazy
 from django.contrib.auth.models import User
-
 from .models import Articles, Tag, Profile
 from .forms import ArticleForm, RegistrationForm, AuthForm, UserForm, ProfileForm
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
 
 
 def index(request):
@@ -17,9 +13,16 @@ def index(request):
     return render(request, 'blog/index.html', {'articles': article_1, 'title': "Главная"})
 
 
-def profile(request):
-    article_1 = Articles.objects.filter(owner=request.user).order_by("-date_of_publishing")
-    return render(request, 'blog/profile.html', {'articles': article_1, 'title': "Профиль"})
+def profile(request, user_id):
+    name1 = get_object_or_404(User, id=user_id)
+    profile1 = get_object_or_404(Profile, user=name1)
+    article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
+    return render(request, 'blog/profile.html', {
+        'user_form': name1,
+        'profile_form': profile1,
+        'articles': article_1,
+        'title': "Профиль"
+    })
 
 
 def register(request):
@@ -102,14 +105,14 @@ def edit_article(request, slug_name):
             articles.is_published = False
 
         articles.tags.clear()
-        for c in request.POST.get('tags'):
+        for c in request.POST.getlist('tags'):
             print(c)
             articles.tags.add(c)
         articles.save()
         return redirect(articles)
     else:
         form = ArticleForm(initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
-        return render(request, "blog/edit_article.html", {'article': articles, 'form': form})
+        return render(request, "blog/edit_article.html", {'title': "Изменить статью", 'article': articles, 'form': form})
 
 
 def delete_article(request, slug_name):
@@ -122,7 +125,7 @@ def delete_article(request, slug_name):
 @transaction.atomic
 def update_profile(request, user_id):
     name1 = get_object_or_404(User, id=user_id)
-    profile1 = get_object_or_404(Profile, user=name1)
+    profile1 = get_object_or_404(Profile, user_id=user_id)
     article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=name1)
@@ -137,7 +140,7 @@ def update_profile(request, user_id):
     else:
         user_form = UserForm(instance=name1)
         profile_form = ProfileForm(instance=profile1)
-    return render(request, 'blog/profile.html', {
+    return render(request, 'blog/update_profile.html', {
         'user_form': user_form,
         'profile_form': profile_form,
         'articles': article_1,

@@ -8,35 +8,32 @@
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col col-lg-9 col-xl-7">
                 <div class="card">
-                    <div class="rounded-top text-white d-flex flex-row" style="background-color: blue; height:220px;">
+                    <div class="rounded-top text-white d-flex flex-row" style="background-color: blue; height:240px;">
                         <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
-                            {% if profile_form.initial.photo %}
-                                <img src="{{ profile_form.initial.photo.url }}"
+                            {% if profile_form.photo %}
+                                <img src="{{ profile_form.photo.url }}"
                                      alt="Generic placeholder image" class="img-fluid img-thumbnail mt-4 mb-2"
-                                     style="width: 150px; z-index: 1">
+                                     style="height:200px; width: 200px; z-index: 1">
                             {% else %}
                                 {% load static %}
                                 <img src="{% static 'images/profile/user.png' %}"
                                      alt="Generic placeholder image" class="img-fluid img-thumbnail mt-4 mb-2"
-                                     style="width: 150px; z-index: 1">
-                            {% endif %}
-                            {% if user.username == user_form.initial.username %}
-                            <button type="button" class="btn btn-outline-dark" data-mdb-ripple-color="dark"
-                                    style="z-index: 1;">
-                                Редактировать
-                            </button>
+                                     style="height:200px; width: 200px; z-index: 1">
                             {% endif %}
                         </div>
                         <div class="ms-3" style="margin-top: 130px;">
-                            <h5>{{ user_form.initial.first_name }} {{ user_form.initial.last_name }}</h5>
-                            <h6>@{{ user_form.initial.username }}</h6>
-                            <p>{{ profile_form.initial.location }}</p>
+                            <h5>{{ user_form.first_name }} {{ user_form.last_name }}</h5>
+                            <h6>@{{ user_form.username }}</h6>
+                            <p>{{ profile_form.location }}</p>
                         </div>
                     </div>
-                    {% if user.username == user_form.initial.username %}
-                    <div class="p-4 text-black" style="background-color: #f8f9fa; height: 80px"></div>
-                    {% else %}
-                        <div class="p-4 text-black" style="background-color: #f8f9fa; height: 30px"></div>
+                    {% if user.username == user_form.username %}
+                        <div class="p-4 text-black" style="background-color: #f8f9fa; height: 90px">
+                            <button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark"
+                                    style="z-index: 1;">
+                                <a href="{% url 'update_profile' user_id=user_form.id %}" class="nav-link active">Редактировать</a>
+                            </button>
+                        </div>
                     {% endif %}
                     <div class="accordion" id="accordionExample">
                         <div class="accordion-item">
@@ -49,14 +46,16 @@
                             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
                                  data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
-                                    {% if profile_form.initial.birth_date != None %}
-                                    <p class="font-italic mb-1"><strong>Дата рождения: </strong> {{ profile_form.initial.birth_date }}</p>
+                                    {% if profile_form.birth_date != None %}
+                                        <p class="font-italic mb-1"><strong>Дата
+                                            рождения: </strong> {{ profile_form.birth_date }}</p>
                                     {% endif %}
-                                    {% if user_form.initial.email != "" %}
-                                    <p class="font-italic mb-1"><strong>E-mail: </strong> {{ user_form.initial.email }}</p>
+                                    {% if user_form.email != "" %}
+                                        <p class="font-italic mb-1"><strong>E-mail: </strong> {{ user_form.email }}</p>
                                     {% endif %}
-                                    {% if profile_form.initial.bio != "" %}
-                                    <p class="font-italic mb-1"><strong>Биография:</strong> <br>{{ profile_form.initial.bio }}</p>
+                                    {% if profile_form.bio != "" %}
+                                        <p class="font-italic mb-1"><strong>Биография:</strong>
+                                            <br>{{ profile_form.bio }}</p>
                                     {% endif %}
                                 </div>
                             </div>
@@ -66,17 +65,6 @@
             </div>
         </div>
     </div>
-  <h1 class="text-center">Статьи пользователя {{ user_form.initial.username }}:</h1>
+    <h1 class="text-center">Статьи пользователя {{ user_form.username }}:</h1>
     {% include "blog/_throw_articles.html" %}
-
-
-    {% comment %}
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ user_form.as_p }}
-        {{ profile_form.as_p }}
-        <button class="w-100 btn btn-lg btn-outline-primary" type="submit">Войти</button>
-    </form>
-    {% endcomment %}
-
 {% endblock %}
