@@ -2,8 +2,11 @@
 
 {% for item in articles %}
     <div class="container d-flex justify-content-center align-baseline">
-        <div class="card d-flex mb-3 mx-5 w-100 p-3">
-            {#        <img src="..." class="card-img-top" alt="...">#}
+        {% if item.is_published %}
+            <div class="card d-flex mb-3 mx-5 w-100 p-3">
+        {% else %}
+            <div class="card d-flex mb-3 mx-5 w-100 p-3" style="background-color: #ffdedf;">
+        {% endif %}
             <div class="card-body">
                 <h5 class="card-title">{{ item.title }}</h5>
                 <p class="card-text">

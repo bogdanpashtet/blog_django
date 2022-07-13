@@ -65,6 +65,9 @@
             </div>
         </div>
     </div>
+    {% if user.username == user_form.username %}
+        <h6 class="text-center mb-5">Красным отмечены статьи, которые в данный момент не опубликованы.</h6>
+    {% endif %}
     <h1 class="text-center">Статьи пользователя {{ user_form.username }}:</h1>
     {% include "blog/_throw_articles.html" %}
 {% endblock %}

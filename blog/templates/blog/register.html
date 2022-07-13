@@ -4,32 +4,33 @@
 
 {% block content %}
     <div class="container">
-      <div class="d-flex justify-content-center align-baseline form-signin ">
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group m-1 p-3">
+        <div class="d-flex justify-content-center align-baseline form-signin ">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group m-1 p-3">
 
-                <label for="{{ form.username.id_for_label }}">Имя пользователя: </label><br>
-                {{ form.username }}
+                    <label for="{{ form.username.id_for_label }}">Имя пользователя: </label><br>
+                    {{ form.username }}
                     {{ form.username.errors }}
 
-                <label for="{{ form.password1.id_for_label }}">Пароль: </label><br>
-                {{ form.password1 }}
+                    <label for="{{ form.password1.id_for_label }}">Пароль: </label><br>
+                    {{ form.password1 }}
                     {{ form.password1.errors }}
 
-                <label for="{{ form.password2.id_for_label }}">Повторите пароль: </label><br>
-                {{ form.password2 }}
+                    <label for="{{ form.password2.id_for_label }}">Повторите пароль: </label><br>
+                    {{ form.password2 }}
                     {{ form.password2.errors }}
-            </div>
+                </div>
 
-            <nav aria-label="breadcrumb" class="d-flex justify-content-center align-baseline">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page"><a href="{% url 'authorization' %}">У Вас уже есть аккаунт?</a></li>
-                </ol>
-            </nav>
-            <button class="w-100 btn btn-lg btn-outline-primary" type="submit">Зарегистрироваться</button>
-        </form>
-      </div>
+                <nav aria-label="breadcrumb" class="d-flex justify-content-center align-baseline">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page"><a href="{% url 'authorization' %}">У Вас
+                            уже есть аккаунт?</a></li>
+                    </ol>
+                </nav>
+                <button class="w-100 btn btn-lg btn-outline-primary" type="submit">Зарегистрироваться</button>
+            </form>
+        </div>
     </div>
 
 

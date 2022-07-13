@@ -16,7 +16,10 @@ def index(request):
 def profile(request, user_id):
     name1 = get_object_or_404(User, id=user_id)
     profile1 = get_object_or_404(Profile, user=name1)
-    article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
+    if request.user == name1:
+        article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
+    else:
+        article_1 = Articles.objects.filter(owner=name1, is_published=True).order_by("-date_of_publishing")
     return render(request, 'blog/profile.html', {
         'user_form': name1,
         'profile_form': profile1,
@@ -86,7 +89,7 @@ def add_article(request):
             is_published = form.cleaned_data["is_published"]
             tags = form.cleaned_data["tags"]
             owner = str(request.user.id)
-            article1 = Articles.objects.create(title=title, article_text=article_text, is_published=is_published, owner=owner)
+            article1 = Articles.objects.create(title=title, article_text=article_text, is_published=is_published, owner_id=owner)
             article1.tags.set(tags)
             article1.save()
             return redirect(article1)
@@ -97,7 +100,7 @@ def add_article(request):
 
 def edit_article(request, slug_name):
     articles = get_object_or_404(Articles, slug_name=slug_name)
-    if request.user == articles.owner_id:
+    if request.user.id == articles.owner_id:
         title = articles.title
         article_text = articles.article_text
         is_published = articles.is_published
@@ -127,7 +130,7 @@ def edit_article(request, slug_name):
 
 def delete_article(request, slug_name):
     article = Articles.objects.get(slug_name=slug_name)
-    if request.user == article.owner_id:
+    if request.user.id == article.owner_id:
         article.delete()
         return redirect('profile', user_id=request.user.id)
     else:
