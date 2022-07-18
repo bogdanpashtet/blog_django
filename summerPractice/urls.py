@@ -4,6 +4,11 @@ from django.contrib import admin
 from django.urls import path
 from blog.views import *
 
+#
+# def permission_denied_view(request):
+#     raise PermissionDenied
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name=''),
@@ -20,7 +25,14 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('authorization/', authorization, name='authorization'),
     path('logout/', user_logout, name='logout'),
+
+    # path('403/', permission_denied_view),
 ]
+
+
+handler404 = 'blog.views.page_not_found_view'
+
+handler403 = 'blog.views.permission_denied_view'
 
 
 if settings.DEBUG:

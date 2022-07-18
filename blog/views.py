@@ -6,6 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from .models import Articles, Tag, Profile
 from .forms import ArticleForm, RegistrationForm, AuthForm, UserForm, ProfileForm
+from django.core.exceptions import PermissionDenied
 
 
 def index(request):
@@ -124,8 +125,7 @@ def edit_article(request, slug_name):
             form = ArticleForm(initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
             return render(request, "blog/edit_article.html", {'title': "Изменить статью", 'article': articles, 'form': form})
     else:
-        messages.error(request, 'У Вас нет прав на редактирование данной статьи!')
-        return redirect(articles)
+        raise PermissionDenied
 
 
 def delete_article(request, slug_name):
@@ -134,8 +134,7 @@ def delete_article(request, slug_name):
         article.delete()
         return redirect('profile', user_id=request.user.id)
     else:
-        messages.error(request, 'У Вас нет прав для удаления данной статьи!')
-        return redirect(article)
+        raise PermissionDenied
 
 
 @login_required
@@ -165,5 +164,22 @@ def update_profile(request, user_id):
             'title': "Профиль"
         })
     else:
-        messages.error(request, 'У Вас нет прав для редактирования данного профиля!')
-        return redirect('profile', user_id=name1.id)
+        raise PermissionDenied
+
+
+def page_not_found_view(request, exception):
+    return render(request, 'blog/base_errors.html', {
+        'title': "Ошибка 404",
+        'error_number': 404,
+        'error_text': "Страница не найдена.",
+        'error_description': "Страница, которую Вы ищите, не существует."
+    }, status=404)
+
+
+def permission_denied_view(request, exception):
+    return render(request, 'blog/base_errors.html', {
+        'title': "Ошибка 403",
+        'error_number': 403,
+        'error_text': "Доступ к данной странице запрещен.",
+        'error_description': "У Вас недостаточно прав пользователя, чтобы перейти на данную страницу."
+    }, status=403)

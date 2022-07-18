@@ -1,0 +1,16 @@
+{% extends "blog/base_generic.html" %}
+
+{% block title %}<title>{{ title }}</title>{% endblock %}
+
+{% block content %}
+    <div class="d-flex align-items-center justify-content-center vh-100">
+        <div class="text-center">
+            <h1 class="display-1 fw-bold">{{ error_number }}</h1>
+            <p class="fs-3"><span class="text-danger">Opps!</span> {{ error_text }}</p>
+            <p class="lead">
+                {{ error_description }}
+            </p>
+            <a href="{% url index %}" class="btn btn-primary">На главную</a>
+        </div>
+    </div>
+{% endblock %}

@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-ldis)k3+3be0+mgjn^qn_#ya$n_m4x#&g_kc+yxbk8^oh62tzb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# ALLOWED_HOSTS = ['127.0.0.1']
 ALLOWED_HOSTS = []
 
 
@@ -131,5 +132,5 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 
-#ckeditor upload path
+# ckeditor upload path
 CKEDITOR_UPLOAD_PATH="uploads/"
