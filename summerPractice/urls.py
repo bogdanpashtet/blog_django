@@ -13,7 +13,6 @@ urlpatterns = [
     path('profile/<int:user_id>/', profile, name='profile'),
     path('update_profile/<int:user_id>/', update_profile, name='update_profile'),
 
-    # path('article/<slug:slug_name>/', get_article, name='article'),
     path('article/<slug:slug>/', ViewArticle.as_view(), name='article'),
     path('add_article/', add_article, name='add_article'),
     path('edit_article/<slug:slug>/', edit_article, name='edit_article'),
@@ -21,7 +20,7 @@ urlpatterns = [
 
     path('register/', register, name='register'),
     path('authorization/', authorization, name='authorization'),
-    path('logout/', user_logout, name='logout'),
+    path('logout/', ViewLogout.as_view(), name='logout'),
 ]
 
 

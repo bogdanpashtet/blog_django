@@ -1,5 +1,6 @@
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import login
+from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404, redirect
@@ -88,14 +89,13 @@ def authorization(request):
         return redirect('profile', user_id=request.user.id)
 
 
-def user_logout(request):
-    logout(request)
-    return redirect('')
+class ViewLogout(LogoutView):
+    next_page = ''
 
-
-# def get_article(request, slug_name):
-#     articles = get_object_or_404(Articles, slug_name=slug_name)
-#     return render(request, 'blog/article.html', {'article': articles})
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        messages.success(request, 'Вы успешно вышли со своей страницы!')
+        return response
 
 
 class ViewArticle(DetailView):
@@ -124,8 +124,8 @@ def add_article(request):
     return render(request, 'blog/add_article.html', {'title': "Добавить статью", 'form': form})
 
 
-def edit_article(request, slug_name):
-    articles = get_object_or_404(Articles, slug=slug_name)
+def edit_article(request, slug):
+    articles = get_object_or_404(Articles, slug=slug)
     if request.user.id == articles.owner_id:
         title = articles.title
         article_text = articles.article_text
@@ -155,8 +155,8 @@ def edit_article(request, slug_name):
         raise PermissionDenied
 
 
-def delete_article(request, slug_name):
-    article = Articles.objects.get(slug=slug_name)
+def delete_article(request, slug):
+    article = Articles.objects.get(slug=slug)
     if request.user.id == article.owner_id:
         article.delete()
         return redirect('profile', user_id=request.user.id)
