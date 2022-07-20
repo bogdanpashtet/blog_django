@@ -1,16 +1,19 @@
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import login
-from django.contrib.auth.views import LogoutView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
+from django.urls import reverse_lazy
 from .models import Articles, Tag, Profile
 from .forms import ArticleForm, RegistrationForm, AuthForm, UserForm, ProfileForm
 from django.core.exceptions import PermissionDenied
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView
 
 
+# ----------- Main & Categories ----------------
 class Index(ListView):
     model = Articles
     template_name = 'blog/index.html'
@@ -38,6 +41,7 @@ class GetTag(ListView):
             '-date_of_publishing')
 
 
+# --------------- Profile ----------------------
 def profile(request, user_id):
     name1 = get_object_or_404(User, id=user_id)
     profile1 = get_object_or_404(Profile, user=name1)
@@ -53,51 +57,37 @@ def profile(request, user_id):
     })
 
 
-def register(request):
-    if request.user.id is None:
-        if request.method == "POST":
-            form = RegistrationForm(request.POST)
-            if form.is_valid():
-                user = form.save()
-                login(request, user)
-                messages.success(request, 'Вы успешно зарегистрированы!')
+@login_required
+@transaction.atomic
+def update_profile(request, user_id):
+    name1 = get_object_or_404(User, id=user_id)
+    if request.user == name1:
+        profile1 = get_object_or_404(Profile, user_id=user_id)
+        article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
+        if request.method == 'POST':
+            user_form = UserForm(request.POST, instance=name1)
+            profile_form = ProfileForm(request.POST, request.FILES, instance=profile1)
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                profile_form.save()
+                messages.success(request, 'Ваш профиль был успешно обновлен!')
                 return redirect('profile', user_id=request.user.id)
             else:
-                messages.error(request, 'Ошибка регистрации!')
+                messages.error(request, 'Пожалуйста, исправьте ошибки.')
         else:
-            form = RegistrationForm()
-        return render(request, 'blog/register.html', {'title': "Регистрация", 'form': form})
+            user_form = UserForm(instance=name1)
+            profile_form = ProfileForm(instance=profile1)
+        return render(request, 'blog/update_profile.html', {
+            'user_form': user_form,
+            'profile_form': profile_form,
+            'articles': article_1,
+            'title': "Профиль"
+        })
     else:
-        return redirect('profile', user_id=request.user.id)
+        raise PermissionDenied
 
 
-def authorization(request):
-    if request.user.id is None:
-        if request.method == "POST":
-            form = AuthForm(data=request.POST)
-            if form.is_valid():
-                user = form.get_user()
-                login(request, user)
-                messages.success(request, 'Вы успешно авторизированны!')
-                return redirect('profile', user_id=request.user.id)
-            else:
-                messages.error(request, 'Ошибка входа!')
-        else:
-            form = AuthForm()
-        return render(request, 'blog/authorization.html', {'title': "Авторизация", 'form': form})
-    else:
-        return redirect('profile', user_id=request.user.id)
-
-
-class ViewLogout(LogoutView):
-    next_page = ''
-
-    def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
-        messages.success(request, 'Вы успешно вышли со своей страницы!')
-        return response
-
-
+# --------------- Articles ----------------
 class ViewArticle(DetailView):
     model = Articles
     context_object_name = 'article'
@@ -164,36 +154,38 @@ def delete_article(request, slug):
         raise PermissionDenied
 
 
-@login_required
-@transaction.atomic
-def update_profile(request, user_id):
-    name1 = get_object_or_404(User, id=user_id)
-    if request.user == name1:
-        profile1 = get_object_or_404(Profile, user_id=user_id)
-        article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
-        if request.method == 'POST':
-            user_form = UserForm(request.POST, instance=name1)
-            profile_form = ProfileForm(request.POST, request.FILES, instance=profile1)
-            if user_form.is_valid() and profile_form.is_valid():
-                user_form.save()
-                profile_form.save()
-                messages.success(request, 'Ваш профиль был успешно обновлен!')
-                return redirect('profile', user_id=request.user.id)
-            else:
-                messages.error(request, 'Пожалуйста, исправьте ошибки.')
-        else:
-            user_form = UserForm(instance=name1)
-            profile_form = ProfileForm(instance=profile1)
-        return render(request, 'blog/update_profile.html', {
-            'user_form': user_form,
-            'profile_form': profile_form,
-            'articles': article_1,
-            'title': "Профиль"
-        })
-    else:
-        raise PermissionDenied
+# --------------- User ----------------
+class ViewRegistration(SuccessMessageMixin, CreateView):
+    form_class = RegistrationForm
+    extra_context = {'title': "Регистрация"}
+    template_name = 'registration/register.html'
+    success_message = "Ваш профиль был успешно создан! Войдите на свою новую страницу."
+    success_url = reverse_lazy('login')
 
 
+class ViewLogin(SuccessMessageMixin, LoginView):
+    authentication_form = AuthForm
+    extra_context = {'title': "Авторизация"}
+    redirect_authenticated_user = True
+    success_message = 'Вы успешно авторизированны!'
+
+    def get_success_url(self):
+        return reverse_lazy('profile', kwargs={'user_id': self.request.user.pk})
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Ошибка входа!')
+        return super().form_invalid(form)
+
+
+class ViewLogout(LogoutView):
+    next_page = ''
+
+    def dispatch(self, request, *args, **kwargs):
+        messages.success(request, 'Вы успешно вышли со своей страницы!')
+        return super().dispatch(request, *args, **kwargs)
+
+
+# --------------- Errors ----------------
 def page_not_found_view(request, exception):
     return render(request, 'blog/base_errors.html', {
         'title': "Ошибка 404",
