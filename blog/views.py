@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from .models import Articles, Tag, Profile
 from .forms import ArticleForm, RegistrationForm, AuthForm, UserForm, ProfileForm
 from django.core.exceptions import PermissionDenied
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 
 class Index(ListView):
@@ -93,9 +93,16 @@ def user_logout(request):
     return redirect('')
 
 
-def get_article(request, slug_name):
-    articles = get_object_or_404(Articles, slug_name=slug_name)
-    return render(request, 'blog/article.html', {'article': articles})
+# def get_article(request, slug_name):
+#     articles = get_object_or_404(Articles, slug_name=slug_name)
+#     return render(request, 'blog/article.html', {'article': articles})
+
+
+class ViewArticle(DetailView):
+    model = Articles
+    context_object_name = 'article'
+    template_name = 'blog/article.html'
+    slug_url_kwarg = 'slug'
 
 
 def add_article(request):
@@ -118,7 +125,7 @@ def add_article(request):
 
 
 def edit_article(request, slug_name):
-    articles = get_object_or_404(Articles, slug_name=slug_name)
+    articles = get_object_or_404(Articles, slug=slug_name)
     if request.user.id == articles.owner_id:
         title = articles.title
         article_text = articles.article_text
@@ -149,7 +156,7 @@ def edit_article(request, slug_name):
 
 
 def delete_article(request, slug_name):
-    article = Articles.objects.get(slug_name=slug_name)
+    article = Articles.objects.get(slug=slug_name)
     if request.user.id == article.owner_id:
         article.delete()
         return redirect('profile', user_id=request.user.id)

@@ -54,7 +54,7 @@ class Articles(models.Model):
     title = models.CharField(max_length=200, default="Enter the name please", verbose_name="Заголовок")
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Владелец", max_length=200, default=1)
     article_text = models.TextField(blank=True, verbose_name="Текст статьи")
-    slug_name = models.SlugField(max_length=200, db_index=True)
+    slug = models.SlugField(max_length=200, db_index=True)
     date_of_publishing = models.DateTimeField(auto_now_add=True, verbose_name="Дата публикации")
     is_published = models.BooleanField(default=True, verbose_name="Опубликовано?")
     tags = models.ManyToManyField(Tag, help_text="Выберете тематику статьи", verbose_name="Теги")
@@ -70,15 +70,15 @@ class Articles(models.Model):
         return " ".join([str(p) for p in self.tags.all()])
 
     def get_absolute_url(self):
-        return reverse('article', kwargs={'slug_name': self.slug_name})
+        return reverse('article', kwargs={'slug': self.slug})
 
     def edit_absolute_url(self):
-        return reverse('edit_article', kwargs={'slug_name': self.slug_name})
+        return reverse('edit_article', kwargs={'slug': self.slug})
 
     def delete_absolute_url(self):
-        return reverse('delete_article', kwargs={'slug_name': self.slug_name})
+        return reverse('delete_article', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.slug_name = slugify(self.title)
+            self.slug = slugify(self.title)
         super(Articles, self).save(*args, **kwargs)

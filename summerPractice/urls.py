@@ -8,16 +8,16 @@ from blog.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Index.as_view(), name=''),
-    # path('tag/<int:tag_id>/', get_tag, name='tag'),
     path('tag/<int:tag_id>/', GetTag.as_view(), name='tag'),
 
     path('profile/<int:user_id>/', profile, name='profile'),
     path('update_profile/<int:user_id>/', update_profile, name='update_profile'),
 
-    path('article/<slug:slug_name>/', get_article, name='article'),
+    # path('article/<slug:slug_name>/', get_article, name='article'),
+    path('article/<slug:slug>/', ViewArticle.as_view(), name='article'),
     path('add_article/', add_article, name='add_article'),
-    path('edit_article/<slug:slug_name>/', edit_article, name='edit_article'),
-    path('delete_article/<slug:slug_name>/', delete_article, name='delete_article'),
+    path('edit_article/<slug:slug>/', edit_article, name='edit_article'),
+    path('delete_article/<slug:slug>/', delete_article, name='delete_article'),
 
     path('register/', register, name='register'),
     path('authorization/', authorization, name='authorization'),
