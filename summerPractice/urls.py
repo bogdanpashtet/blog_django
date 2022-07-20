@@ -4,15 +4,12 @@ from django.contrib import admin
 from django.urls import path
 from blog.views import *
 
-#
-# def permission_denied_view(request):
-#     raise PermissionDenied
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index, name=''),
-    path('tag/<int:tag_id>/', get_tag, name='tag'),
+    path('', Index.as_view(), name=''),
+    # path('tag/<int:tag_id>/', get_tag, name='tag'),
+    path('tag/<int:tag_id>/', GetTag.as_view(), name='tag'),
 
     path('profile/<int:user_id>/', profile, name='profile'),
     path('update_profile/<int:user_id>/', update_profile, name='update_profile'),
@@ -25,8 +22,6 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('authorization/', authorization, name='authorization'),
     path('logout/', user_logout, name='logout'),
-
-    # path('403/', permission_denied_view),
 ]
 
 

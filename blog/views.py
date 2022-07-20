@@ -7,11 +7,34 @@ from django.contrib.auth.models import User
 from .models import Articles, Tag, Profile
 from .forms import ArticleForm, RegistrationForm, AuthForm, UserForm, ProfileForm
 from django.core.exceptions import PermissionDenied
+from django.views.generic import ListView
 
 
-def index(request):
-    article_1 = Articles.objects.filter(is_published=True).prefetch_related('tags').order_by("-date_of_publishing")
-    return render(request, 'blog/index.html', {'articles': article_1, 'title': "Главная"})
+class Index(ListView):
+    model = Articles
+    template_name = 'blog/index.html'
+    context_object_name = 'articles'
+    extra_context = {'title': 'Главная'}
+
+    def get_queryset(self):
+        return Articles.objects.filter(is_published=True).prefetch_related('tags').order_by("-date_of_publishing")
+
+
+class GetTag(ListView):
+    model = Articles
+    template_name = 'blog/index.html'
+    context_object_name = 'articles'
+    allow_empty = False
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = Tag.objects.get(pk=self.kwargs['tag_id'])
+        context['tag'] = context['title']
+        return context
+
+    def get_queryset(self):
+        return Articles.objects.filter(tags=self.kwargs['tag_id'], is_published=True).prefetch_related('tags').order_by(
+            '-date_of_publishing')
 
 
 def profile(request, user_id):
@@ -70,12 +93,6 @@ def user_logout(request):
     return redirect('')
 
 
-def get_tag(request, tag_id):
-    articles = Articles.objects.filter(tags=tag_id, is_published=True).prefetch_related('tags')
-    tag = Tag.objects.get(pk=tag_id)
-    return render(request, 'blog/index.html', {'title': tag, 'articles': articles, 'tag': tag})
-
-
 def get_article(request, slug_name):
     articles = get_object_or_404(Articles, slug_name=slug_name)
     return render(request, 'blog/article.html', {'article': articles})
@@ -90,7 +107,8 @@ def add_article(request):
             is_published = form.cleaned_data["is_published"]
             tags = form.cleaned_data["tags"]
             owner = str(request.user.id)
-            article1 = Articles.objects.create(title=title, article_text=article_text, is_published=is_published, owner_id=owner)
+            article1 = Articles.objects.create(title=title, article_text=article_text, is_published=is_published,
+                                               owner_id=owner)
             article1.tags.set(tags)
             article1.save()
             return redirect(article1)
@@ -122,8 +140,10 @@ def edit_article(request, slug_name):
             articles.save()
             return redirect(articles)
         else:
-            form = ArticleForm(initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
-            return render(request, "blog/edit_article.html", {'title': "Изменить статью", 'article': articles, 'form': form})
+            form = ArticleForm(
+                initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
+            return render(request, "blog/edit_article.html",
+                          {'title': "Изменить статью", 'article': articles, 'form': form})
     else:
         raise PermissionDenied
 
