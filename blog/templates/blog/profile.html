@@ -10,8 +10,8 @@
                 <div class="card">
                     <div class="rounded-top text-white d-flex flex-row" style="background-color: blue; height:240px;">
                         <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
-                            {% if profile_form.photo %}
-                                <img src="{{ profile_form.photo.url }}"
+                            {% if user_form.profile.photo %}
+                                <img src="{{ user_form.profile.photo.url }}"
                                      alt="Generic placeholder image" class="img-fluid img-thumbnail mt-4 mb-2"
                                      style="height:200px; width: 200px; z-index: 1">
                             {% else %}
@@ -24,7 +24,7 @@
                         <div class="ms-3" style="margin-top: 130px;">
                             <h5>{{ user_form.first_name }} {{ user_form.last_name }}</h5>
                             <h6>@{{ user_form.username }}</h6>
-                            <p>{{ profile_form.location }}</p>
+                            <p>{{ user_form.profile.location }}</p>
                         </div>
                     </div>
                     {% if user.username == user_form.username %}
@@ -46,16 +46,16 @@
                             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
                                  data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
-                                    {% if profile_form.birth_date != None %}
+                                    {% if user_form.profile.birth_date != None %}
                                         <p class="font-italic mb-1"><strong>Дата
-                                            рождения: </strong> {{ profile_form.birth_date }}</p>
+                                            рождения: </strong> {{ user_form.profile.birth_date }}</p>
                                     {% endif %}
                                     {% if user_form.email != "" %}
                                         <p class="font-italic mb-1"><strong>E-mail: </strong> {{ user_form.email }}</p>
                                     {% endif %}
-                                    {% if profile_form.bio != "" %}
+                                    {% if user_form.profile.bio != "" %}
                                         <p class="font-italic mb-1"><strong>Биография:</strong>
-                                            <br>{{ profile_form.bio }}</p>
+                                            <br>{{ user_form.profile.bio }}</p>
                                     {% endif %}
                                 </div>
                             </div>

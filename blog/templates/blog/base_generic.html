@@ -36,7 +36,7 @@
                         {{ user.username }}
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li class="dropdown-item"><a href="{% url 'profile' user_id=user.id %}"
+                        <li class="dropdown-item"><a href="{% url 'profile' pk=user.id %}"
                                                      class="nav-link">Профиль</a></li>
                         <li class="dropdown-item"><a href="{% url 'add_article' %}" class="nav-link">Добавить статью</a>
                         </li>

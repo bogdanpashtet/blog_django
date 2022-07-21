@@ -13,7 +13,7 @@ urlpatterns = [
     path('tag/<int:tag_id>/', GetTag.as_view(), name='tag'),
 
     # --------------------------- Profile --------------------------------------
-    path('profile/<int:user_id>/', profile, name='profile'),
+    path('profile/<int:pk>/', ViewProfile.as_view(), name='profile'),
     path('update_profile/<int:user_id>/', update_profile, name='update_profile'),
 
     # -------------------------- Articles --------------------------------------

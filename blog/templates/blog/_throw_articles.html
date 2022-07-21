@@ -16,7 +16,7 @@
                 {% endfor %}
             </p>
             <p class="card-text mb-1"><small class="text-muted">Автор: <a
-                    href="{% url 'profile' user_id=item.owner_id %}">{{ item.owner }}</a></small></p>
+                    href="{% url 'profile' pk=item.owner_id %}">{{ item.owner }}</a></small></p>
             <p class="card-text mt-1"><small
                     class="text-muted">Опубликовано: {{ item.date_of_publishing| timesince }} назад</small></p>
             <button type="button" class="btn btn-outline-primary"><a href="{{ item.get_absolute_url }}"

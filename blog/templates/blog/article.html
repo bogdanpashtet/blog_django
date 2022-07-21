@@ -23,7 +23,7 @@
         <h2 class="blog-post-title mb-1">{{ article.title }}</h2>
     <div class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
         <div class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-           <p class="blog-post-meta">{{ article.date_of_publishing }} by <a href="{% url 'profile' user_id=article.owner_id %}">{{ article.owner }}</a></p>
+           <p class="blog-post-meta">{{ article.date_of_publishing }} by <a href="{% url 'profile' pk=article.owner_id %}">{{ article.owner }}</a></p>
         </div>
         {% if user.id == article.owner_id %}
         <ul class="nav nav-pills p">

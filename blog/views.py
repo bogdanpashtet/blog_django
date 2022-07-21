@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -42,19 +41,24 @@ class GetTag(ListView):
 
 
 # --------------- Profile ----------------------
-def profile(request, user_id):
-    name1 = get_object_or_404(User, id=user_id)
-    profile1 = get_object_or_404(Profile, user=name1)
-    if request.user == name1:
-        article_1 = Articles.objects.filter(owner=name1).order_by("-date_of_publishing")
-    else:
-        article_1 = Articles.objects.filter(owner=name1, is_published=True).order_by("-date_of_publishing")
-    return render(request, 'blog/profile.html', {
-        'user_form': name1,
-        'profile_form': profile1,
-        'articles': article_1,
-        'title': "Профиль"
-    })
+class ViewProfile(DetailView):
+    model = User, Profile
+    template_name = 'blog/profile.html'
+    allow_empty = False
+    context_object_name = 'user_form'
+    extra_context = {'title': "Профиль"}
+
+    def get_queryset(self):
+        return User.objects.filter(pk=self.kwargs['pk']).prefetch_related('profile')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.id == self.kwargs['pk']:
+            context['articles'] = Articles.objects.filter(owner_id=self.kwargs['pk']).order_by("-date_of_publishing")
+        else:
+            context['articles'] = Articles.objects.filter(owner_id=self.kwargs['pk'], is_published=True).order_by(
+                "-date_of_publishing")
+        return context
 
 
 @login_required
