@@ -3,8 +3,8 @@
 {% block content %}
     <h1 class="text-center">{{ title }}</h1>
     <div class="container">
-        <form action="{% url 'edit_article' articles.slug %}" method="post">
-            {% include 'article/_edit_article.html' %}
+        <form  action="{% url 'delete_article' articles.slug %}" method="post">
+            {% csrf_token %}
             <div class="form-row text-center">
                 <div class="col-12">
                     <button type="submit" class="btn btn-outline-primary">{{ title }}</button>

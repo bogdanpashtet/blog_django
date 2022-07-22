@@ -72,12 +72,6 @@ class Articles(models.Model):
     def get_absolute_url(self):
         return reverse('article', kwargs={'slug': self.slug})
 
-    def edit_absolute_url(self):
-        return reverse('edit_article', kwargs={'slug': self.slug})
-
-    def delete_absolute_url(self):
-        return reverse('delete_article', kwargs={'slug': self.slug})
-
     def save(self, *args, **kwargs):
         if not self.id:
             self.slug = slugify(self.title)

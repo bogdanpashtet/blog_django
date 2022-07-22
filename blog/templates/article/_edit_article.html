@@ -1,0 +1,32 @@
+{% csrf_token %}
+            <div class="form-group m-5 p-3">
+                {{ form.media }}
+                <div class="form-control m-4 p-4">
+                    <label for="{{ form.title.id_for_label }}">Название: </label><br>
+                    {{ form.title }}
+                </div>
+                <div class="invalid-feedback">
+                    {{ form.title.errors }}
+                </div>
+                <div class="form-control m-4 p-4">
+                    <label for="{{ form.article_text.id_for_label }}">Текст статьи: </label><br>
+                    {{ form.article_text }}
+                    <div class="invalid-feedback">
+                        {{ form.article_text.errors }}
+                    </div>
+                </div>
+                <div class="form-control m-4 p-4">
+                    <label for="{{ form.is_published.id_for_label }}">Опубликовано? </label><br>
+                    {{ form.is_published }}
+                    <div class="invalid-feedback">
+                        {{ form.is_published.errors }}
+                    </div>
+                </div>
+                <div class="form-control m-4 p-4">
+                    <label for="{{ form.tags.id_for_label }}">Теги: </label><br>
+                    {{ form.tags }}
+                    <div class="invalid-feedback">
+                        {{ form.tags.errors }}
+                    </div>
+                </div>
+            </div>

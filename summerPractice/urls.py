@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.urls import path
 from blog.views import *
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     
@@ -18,10 +17,9 @@ urlpatterns = [
 
     # -------------------------- Articles --------------------------------------
     path('article/<slug:slug>/', ViewArticle.as_view(), name='article'),
-    # path('add_article/', add_article, name='add_article'),
     path('add_article/', AddArticle.as_view(), name='add_article'),
-    path('edit_article/<slug:slug>/', edit_article, name='edit_article'),
-    path('delete_article/<slug:slug>/', delete_article, name='delete_article'),
+    path('edit_article/<slug:slug>/', UpdateArticle.as_view(), name='edit_article'),
+    path('delete_article/<slug:slug>/', DeleteArticle.as_view(), name='delete_article'),
 
     # ---------------------------- User ----------------------------------------
     path('register/', ViewRegistration.as_view(), name='register'),

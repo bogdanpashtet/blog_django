@@ -1,17 +1,12 @@
-from django.conf import settings
+from .forms import *
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import views, decorators
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.models import User
 from django.urls import reverse_lazy
-from .models import Articles, Tag, Profile
-from .forms import ArticleForm, RegistrationForm, AuthForm, UserForm, ProfileForm
 from django.core.exceptions import PermissionDenied
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 
 # ----------- Main & Categories ----------------
@@ -63,7 +58,7 @@ class ViewProfile(DetailView):
         return context
 
 
-@login_required
+@decorators.login_required
 @transaction.atomic
 def update_profile(request, user_id):
     name1 = get_object_or_404(User, id=user_id)
@@ -107,60 +102,37 @@ class AddArticle(CreateView):
     template_name = 'article/add_article.html'
 
     def form_valid(self, form):
+        messages.success(self.request, 'Статья успешно создана!')
         article1 = Articles.objects.create(
             title=form.cleaned_data["title"],
             article_text=form.cleaned_data["article_text"],
             is_published=form.cleaned_data["is_published"],
             owner_id=self.request.user.id
         )
-        tags = form.cleaned_data["tags"]
-        article1.tags.set(tags)
+        article1.tags.set(form.cleaned_data["tags"])
         article1.save()
         return redirect(article1)
 
 
-def edit_article(request, slug):
-    articles = get_object_or_404(Articles, slug=slug)
-    if request.user.id == articles.owner_id:
-        title = articles.title
-        article_text = articles.article_text
-        is_published = articles.is_published
-        tags = articles.tags.all()
-        if request.method == "POST":
-            articles.title = request.POST.get('title')
-            articles.article_text = request.POST.get('article_text')
-            articles.is_published = request.POST.get('is_published')
-            if articles.is_published == "on":
-                articles.is_published = True
-            else:
-                articles.is_published = False
-
-            articles.tags.clear()
-            for c in request.POST.getlist('tags'):
-                print(c)
-                articles.tags.add(c)
-            articles.save()
-            return redirect(articles)
-        else:
-            form = ArticleForm(
-                initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
-            return render(request, "article/edit_article.html",
-                          {'title': "Изменить статью", 'article': articles, 'form': form})
-    else:
-        raise PermissionDenied
+class UpdateArticle(SuccessMessageMixin, UpdateView):
+    model = Articles
+    form_class = ArticleForm
+    extra_context = {'title': "Изменить статью"}
+    template_name = 'article/edit_article.html'
+    success_message = 'Статья успешно обновлена!'
 
 
-def delete_article(request, slug):
-    article = Articles.objects.get(slug=slug)
-    if request.user.id == article.owner_id:
-        article.delete()
-        return redirect('profile', user_id=request.user.id)
-    else:
-        raise PermissionDenied
+class DeleteArticle(DeleteView):
+    model = Articles
+    extra_context = {'title': "Удалить статью"}
+    template_name = 'article/delete_article.html'
+
+    def get_success_url(self):
+        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
 
 
 # --------------- User ----------------
-class ViewRegistration(CreateView, SuccessMessageMixin):
+class ViewRegistration(SuccessMessageMixin, CreateView):
     form_class = RegistrationForm
     extra_context = {'title': "Регистрация"}
     template_name = 'registration/register.html'
@@ -168,7 +140,7 @@ class ViewRegistration(CreateView, SuccessMessageMixin):
     success_url = reverse_lazy('login')
 
 
-class ViewLogin(LoginView, SuccessMessageMixin):
+class ViewLogin(SuccessMessageMixin, views.LoginView):
     authentication_form = AuthForm
     extra_context = {'title': "Авторизация"}
     redirect_authenticated_user = True
@@ -182,7 +154,7 @@ class ViewLogin(LoginView, SuccessMessageMixin):
         return super().form_invalid(form)
 
 
-class ViewLogout(LogoutView):
+class ViewLogout(views.LogoutView):
     next_page = ''
 
     def dispatch(self, request, *args, **kwargs):
