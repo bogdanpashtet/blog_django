@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
@@ -95,27 +97,26 @@ def update_profile(request, user_id):
 class ViewArticle(DetailView):
     model = Articles
     context_object_name = 'article'
-    template_name = 'blog/article.html'
+    template_name = 'article/article.html'
     slug_url_kwarg = 'slug'
 
 
-def add_article(request):
-    if request.method == "POST":
-        form = ArticleForm(request.POST)
-        if form.is_valid():
-            title = form.cleaned_data["title"]
-            article_text = form.cleaned_data["article_text"]
-            is_published = form.cleaned_data["is_published"]
-            tags = form.cleaned_data["tags"]
-            owner = str(request.user.id)
-            article1 = Articles.objects.create(title=title, article_text=article_text, is_published=is_published,
-                                               owner_id=owner)
-            article1.tags.set(tags)
-            article1.save()
-            return redirect(article1)
-    else:
-        form = ArticleForm()
-    return render(request, 'blog/add_article.html', {'title': "Добавить статью", 'form': form})
+class AddArticle(CreateView):
+    form_class = ArticleForm
+    extra_context = {'title': "Добавить статью"}
+    template_name = 'article/add_article.html'
+
+    def form_valid(self, form):
+        article1 = Articles.objects.create(
+            title=form.cleaned_data["title"],
+            article_text=form.cleaned_data["article_text"],
+            is_published=form.cleaned_data["is_published"],
+            owner_id=self.request.user.id
+        )
+        tags = form.cleaned_data["tags"]
+        article1.tags.set(tags)
+        article1.save()
+        return redirect(article1)
 
 
 def edit_article(request, slug):
@@ -143,7 +144,7 @@ def edit_article(request, slug):
         else:
             form = ArticleForm(
                 initial={"title": title, "article_text": article_text, "is_published": is_published, "tags": tags})
-            return render(request, "blog/edit_article.html",
+            return render(request, "article/edit_article.html",
                           {'title': "Изменить статью", 'article': articles, 'form': form})
     else:
         raise PermissionDenied
@@ -159,7 +160,7 @@ def delete_article(request, slug):
 
 
 # --------------- User ----------------
-class ViewRegistration(SuccessMessageMixin, CreateView):
+class ViewRegistration(CreateView, SuccessMessageMixin):
     form_class = RegistrationForm
     extra_context = {'title': "Регистрация"}
     template_name = 'registration/register.html'
@@ -167,14 +168,14 @@ class ViewRegistration(SuccessMessageMixin, CreateView):
     success_url = reverse_lazy('login')
 
 
-class ViewLogin(SuccessMessageMixin, LoginView):
+class ViewLogin(LoginView, SuccessMessageMixin):
     authentication_form = AuthForm
     extra_context = {'title': "Авторизация"}
     redirect_authenticated_user = True
     success_message = 'Вы успешно авторизированны!'
 
     def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'user_id': self.request.user.pk})
+        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
 
     def form_invalid(self, form):
         messages.error(self.request, 'Ошибка входа!')
