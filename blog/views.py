@@ -88,6 +88,12 @@ def update_profile(request, user_id):
         raise PermissionDenied
 
 
+@transaction.atomic
+class UpdateProfile(UpdateView):
+    model = Articles
+    form_class = UserForm, ProfileForm
+
+
 # --------------- Articles ----------------
 class ViewArticle(DetailView):
     model = Articles

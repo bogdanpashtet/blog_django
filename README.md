@@ -2,10 +2,8 @@
 
 <h2>Theme: Blog about computers</h2>
 
-<li> ! Прибить футер к земле
-<li> +- Переписать views.py на классы ListView и тд.
-<li> Permissions
-<li> Сделать поиск по названию и по нескольким категориям
-<li> Paging
-<li> Добавить комментирование
-<li> Система рейтинга статей
+Блог выполнен с помощью технологий: 
+<li>Python 3.10.6 
+<li>Django 4.0.5
+<li>HTML 5
+<li>Bootstrap 5.2.0 
